@@ -11,6 +11,8 @@ const App = () => {
     description: "",
   });
   const [proposals, setProposals] = useState([]);
+  const [reversedProposals, setReversedProposals] = useState([]);
+  const [renderHandler, setRenderHandler] = useState(0);
 
   const getProviderOrSigner = async (needSigner = false) => {
     // Connect to Metamask
@@ -42,6 +44,7 @@ const App = () => {
       );
       await tx.wait();
       console.log("Proposal added successfully");
+      setRenderHandler(renderHandler + 1);
       // update the proposals array with the new proposal
       // setProposals([
       //   ...proposals,
@@ -60,6 +63,7 @@ const App = () => {
       const proposals = await contract.getProposals();
       console.log(proposals);
       setProposals(proposals);
+      setReversedProposals([...proposals].reverse());
     } catch (err) {
       console.error(err);
     }
@@ -116,7 +120,7 @@ const App = () => {
 
   useEffect(() => {
     getProposals();
-  }, [walletConnected]);
+  }, [walletConnected, renderHandler]);
 
   return (
     <div className="flex  flex-col justify-start items-center p-4 text-white bg-black min-h-screen h-full">
@@ -159,7 +163,7 @@ const App = () => {
             Add Proposal
           </button>
 
-          {proposals.map((proposal, index) => (
+          {reversedProposals.map((proposal, index) => (
             <div key={index} className="border p-4 min-w-[350px] w-auto">
               <h3 className="pb-2">Title: {proposal.title}</h3>
               <p className="pb-2">Description: {proposal.description}</p>
