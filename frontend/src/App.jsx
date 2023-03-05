@@ -119,7 +119,7 @@ const App = () => {
   }, [walletConnected]);
 
   return (
-    <div className="flex  flex-col justify-start items-center p-4 text-white bg-black h-full">
+    <div className="flex  flex-col justify-start items-center p-4 text-white bg-black min-h-screen h-full">
       {!walletConnected && (
         <button
           className="border bg-blue-600 text-white font-bold p-2 m-3"
@@ -176,6 +176,15 @@ const App = () => {
                 >
                   Yes
                 </button>
+              </div>
+              <div className="flex justify-between">
+                {/* //get vote counts */}
+                <p className="text-red-600">
+                  No: {proposal.noVotes.toNumber()}
+                </p>
+                <p className="text-green-600">
+                  Yes: {proposal.yesVotes.toNumber()}
+                </p>
               </div>
             </div>
           ))}
