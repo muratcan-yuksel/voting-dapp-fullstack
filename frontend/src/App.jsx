@@ -42,6 +42,11 @@ const App = () => {
       );
       await tx.wait();
       console.log("Proposal added successfully");
+      // update the proposals array with the new proposal
+      // setProposals([
+      //   ...proposals,
+      //   { title: proposal.title, description: proposal.description },
+      // ]);
       // console.log(proposals);
     } catch (err) {
       console.error(err);
@@ -85,7 +90,7 @@ const App = () => {
     }
   };
 
-  const connectWallet = async () => {
+  const handleConnectWallet = async () => {
     try {
       // Get the provider from web3Modal, which in our case is MetaMask
       // When used for the first time, it prompts the user to connect their wallet
@@ -95,8 +100,7 @@ const App = () => {
       console.error(err);
     }
   };
-
-  useEffect(() => {
+  const connectWallet = async () => {
     // if wallet is not connected, create a new instance of Web3Modal and connect the MetaMask wallet
     if (!walletConnected) {
       // Assign the Web3Modal class to the reference object by setting it's `current` value
@@ -106,29 +110,77 @@ const App = () => {
         providerOptions: {},
         disableInjectedProvider: false,
       });
-      connectWallet();
+      handleConnectWallet();
     }
+  };
+
+  useEffect(() => {
+    getProposals();
   }, [walletConnected]);
+
   return (
-    <div>
-      <input
-        type="text"
-        placeholder="Title"
-        value={proposal.title}
-        onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Description"
-        value={proposal.description}
-        onChange={(e) =>
-          setProposal({ ...proposal, description: e.target.value })
-        }
-      />
+    <div className="flex  flex-col justify-start items-center p-4 text-white bg-black h-full">
+      {!walletConnected && (
+        <button
+          className="border bg-blue-600 text-white font-bold p-2 m-3"
+          onClick={connectWallet}
+        >
+          Connect Wallet
+        </button>
+      )}
 
-      <button onClick={addProposal}>Add Proposal</button>
+      {walletConnected && (
+        <>
+          <div className="flex flex-row ">
+            <input
+              type="text"
+              placeholder="Title"
+              value={proposal.title}
+              onChange={(e) =>
+                setProposal({ ...proposal, title: e.target.value })
+              }
+              className="border p-2 mr-4 text-black"
+            />
+            <input
+              type="text"
+              placeholder="Description"
+              value={proposal.description}
+              onChange={(e) =>
+                setProposal({ ...proposal, description: e.target.value })
+              }
+              className="border p-2 text-black"
+            />
+          </div>
 
-      <button onClick={getProposals}>Get Proposals</button>
+          <button
+            className="border bg-blue-600 text-white font-bold p-2 m-3"
+            onClick={addProposal}
+          >
+            Add Proposal
+          </button>
+
+          {proposals.map((proposal, index) => (
+            <div key={index} className="border p-4 min-w-[350px] w-auto">
+              <h3 className="pb-2">Title: {proposal.title}</h3>
+              <p className="pb-2">Description: {proposal.description}</p>
+              <div className="flex justify-between">
+                <button
+                  className="border p-2 bg-red-600 text-white font-semibold"
+                  onClick={() => vote(proposal.id, false)}
+                >
+                  No
+                </button>
+                <button
+                  className="border p-2 bg-green-600 text-white font-semibold"
+                  onClick={() => vote(proposal.id, true)}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 };
