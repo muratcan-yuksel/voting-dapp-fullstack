@@ -6,6 +6,11 @@ import { WHITELIST_CONTRACT_ADDRESS, abi } from "./constants";
 const App = () => {
   const [walletConnected, setWalletConnected] = useState(false);
   const web3ModalRef = useRef();
+  const [proposal, setProposal] = useState({
+    title: "",
+    description: "",
+  });
+  const [proposals, setProposals] = useState([]);
 
   const getProviderOrSigner = async (needSigner = false) => {
     // Connect to Metamask
@@ -25,6 +30,59 @@ const App = () => {
       return signer;
     }
     return web3Provider;
+  };
+
+  const addProposal = async () => {
+    try {
+      const signer = await getProviderOrSigner(true);
+      const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
+      const tx = await contract.addProposal(
+        proposal.title,
+        proposal.description
+      );
+      await tx.wait();
+      console.log("Proposal added successfully");
+      // console.log(proposals);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getProposals = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, provider);
+      const proposals = await contract.getProposals();
+      console.log(proposals);
+      setProposals(proposals);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  //get proposal id on click
+  // const getProposalId = async (proposalId) => {
+  //   try {
+  //     const provider = await getProviderOrSigner();
+  //     const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, provider);
+  //     const proposal = await contract.getProposal(proposalId);
+  //     console.log(proposal);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+
+  const vote = async (proposalId, vote) => {
+    try {
+      const signer = await getProviderOrSigner(true);
+      const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
+      //vote is boolean
+      const tx = await contract.vote(proposalId, vote);
+      await tx.wait();
+      window.alert("Vote added successfully");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const connectWallet = async () => {
@@ -53,7 +111,24 @@ const App = () => {
   }, [walletConnected]);
   return (
     <div>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <input
+        type="text"
+        placeholder="Title"
+        value={proposal.title}
+        onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
+      />
+      <input
+        type="text"
+        placeholder="Description"
+        value={proposal.description}
+        onChange={(e) =>
+          setProposal({ ...proposal, description: e.target.value })
+        }
+      />
+
+      <button onClick={addProposal}>Add Proposal</button>
+
+      <button onClick={getProposals}>Get Proposals</button>
     </div>
   );
 };

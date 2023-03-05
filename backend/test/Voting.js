@@ -106,4 +106,22 @@ describe("Voting contract", function () {
       expect(proposal.noVotes).to.equal(0);
     });
   });
+
+  describe("getProposal", function () {
+    it("should return a proposal", async function () {
+      const title = "New proposal";
+      const description = "This is a new proposal.";
+      await voting.addProposal(title, description);
+
+      //should call getProposals function and return an array of proposals
+      const proposals = await voting.getProposals();
+      expect(proposals.length).to.equal(1);
+      expect(proposals[0].id).to.equal(0);
+      expect(proposals[0].title).to.equal(title);
+      expect(proposals[0].description).to.equal(description);
+      expect(proposals[0].voteCount).to.equal(0);
+      expect(proposals[0].yesVotes).to.equal(0);
+      expect(proposals[0].noVotes).to.equal(0);
+    });
+  });
 });
